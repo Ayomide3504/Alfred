@@ -1,0 +1,51 @@
+const express = require('express');
+const session = require('express-session');
+const pg = require('pg');
+const bcrypt = require('bcryptjs');
+const PgSession = require('connect-pg-simple')(session);
+
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// PostgreSQL Pool setup
+const pgPool = new pg.Pool({
+    // Configuration options
+    connectionString: 'postgresql://username:password@localhost:5432/databasename'
+});
+
+app.use(session({
+    store: new PgSession({
+        pool: pgPool, // Connection pool
+        tableName: 'session' // Use another table name if you have a specific one
+    }),
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 } // 30 days
+}));
+
+const PORT = 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+/////////////////////////////////////////
+SQL SESSION
+
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE session (
+    sid varchar NOT NULL COLLATE "default",
+    sess json NOT NULL,
+    expire timestamp(6) NOT NULL
+) WITH (OIDS=FALSE);
+
+ALTER TABLE session ADD CONSTRAINT session_pkey PRIMARY KEY (sid);
+
+CREATE INDEX idx_session_expire ON session (expire);
+//////////////////////////////////////////////
+creating a user authentication system express postgre and sessiom, if i login how does my session link my home page

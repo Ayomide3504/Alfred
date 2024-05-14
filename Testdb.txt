@@ -1,0 +1,19 @@
+// testDbConnection.js
+const db = require('./path/to/your/db/module'); // Adjust the path as necessary
+
+// Example query to test the connection
+async function testConnection() {
+  try {
+    // Simple query to check database connectivity
+    const result = await db.query('SELECT NOW()');
+    console.log('Connection successful. Current Time:', result.rows[0].now);
+  } catch (error) {
+    console.error('Error connecting to the database:', error);
+  } finally {
+    // Close the pool connection gracefully
+    db.end();
+  }
+}
+
+// Run the test
+testConnection();
